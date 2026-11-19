@@ -1,8 +1,8 @@
 <#
-.SYNOPSIS
+. SYNOPSIS
     Given a tree, reorientate it based on a selected node.
 
-.DESCRIPTION
+. DESCRIPTION
     A tree is a special type of graph where all nodes are connected but there are no cycles.
     That means, there is exactly one path to get from one node to another for any pair of nodes.
 
@@ -13,9 +13,10 @@
         Throw error if the path doesn't exist.
     - Equals: equality method to compare trees for the test suite.
 
-.EXAMPLE
+. EXAMPLE
     Read instructions for visual example.
 #>
+
 
 Class Tree {
 [string]$Root = $null;
@@ -28,9 +29,12 @@ Class Tree {
     }
     Tree([string] $value, [Tree[]] $Children) {
     $this.Value = $value;
+    write-host "Build Node ----------- $($value)"
     if( $Children -ne $null){
     foreach($item in $Children ){
+    write-host "Add child $($item.Value)"
     $item.Root = $this ;
+    write-host "Root of $($item.value) is $($item.Root.value)"
     }
     }
     $this.Hijos = $Children;
@@ -38,24 +42,42 @@ Class Tree {
     }
 
     [Tree] FromPov([string] $node) {
+    
+    write-host "POV of ===================== $($node )"
     # fIND node first!
     $encontrado = $null
     if( $this.Value -eq $node){
+      
     $encontrado = $this
     }
+    write-host "Loop over $($this.Value) children"
     foreach( $nodo in $this.Hijos){
+        write-host "Child $($nodo.Value)"
     if( $nodo.Value -eq $node){
-
+    
     # hijos+parent de "node"
     $restTree = @( )
-    
-    if($node.Hijos -ne $null){
-    $restTree +=  $node.Hijos
+     write-host "Building found tree ... "
+   
+
+    if($nodo.Hijos -ne $null){
+    $restTree +=  $nodo.Hijos
+    write-Host "Add Hijos de $($nodo.Value)" 
+    write-host $restTree | select-object Value
+
+    }else{
+          write-host "Node $($nodo.Value) doesn't have children"
     }
-    if($node.Root -ne $null -and $node.Hijos.Value -contains $node.Root.Value){
-    $restTree += $node.Root
+    if($nodo.Root -ne $null){
+    $restTree += $nodo.Root
+    write-host "Node $($nodo.Root.Value) is NOT NULL"
+    }else{
+        write-host "Node $($nodo.Root.Value) is NULL"
     }
+   
+
     $encontrado =  [Tree]::new( $node , $restTree );
+    write-Host "Found !!! $($node) - root $( if ($null -ne $nodo.Root.Value) { $nodo.Root.Value } else { 'null' })"
     break;
     }else{
     $encontrado = $nodo.FromPov( $node )
@@ -64,6 +86,7 @@ Class Tree {
     break;
     }
     }#end foreach
+
         return $encontrado;
     }
 
@@ -115,3 +138,28 @@ Class Tree {
         }
     }
 }
+
+
+
+"""
+
+                            0
+                    
+                    |       |        |
+                    1       2        3
+                 |   |    |   |     |  |
+                 4   5    6   7     8  9
+"""
+
+
+$tree = [Tree]::new("0",   @(  [Tree]::new("1", @([Tree]::new("4"), [Tree]::new("5")) ),
+[Tree]::new("2", @([Tree]::new("6"), [Tree]::new("7"))) ,
+[Tree]::new("3", @([Tree]::new("8"), [Tree]::new("9"))) 
+  )
+)
+
+#$reroot1  = $tree.FromPov("6")
+#$reroot2  = $reroot1.FromPov("0")  
+#write-Host "reroot1: $($reroot1 | ConvertTo-Json -Depth 10)"
+
+ 
